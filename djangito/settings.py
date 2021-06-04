@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 import environ
 import os
@@ -53,6 +54,7 @@ THIRD_PARTY_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'crispy_forms',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 PROJECT_APPS = [
@@ -128,7 +130,7 @@ SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # Admin URL Definition
 ADMIN_URL = env('DJANGO_ADMIN_URL', default='admin/')
 
@@ -156,7 +158,6 @@ LOGGING = {
         },
     },
 }
-
 
 # Static And Media Settings
 AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default=None)
@@ -206,6 +207,7 @@ if HONEYBADGER_API_KEY:
 try:
     from kombu import Queue
     from celery import Celery
+
     CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='amqp://localhost')
     if CELERY_BROKER_URL:
         CELERYD_TASK_SOFT_TIME_LIMIT = 60
@@ -274,3 +276,18 @@ POST_OFFICE = {
 AWS_SES_REGION_NAME = env('AWS_SES_REGION_NAME', default='us-east-1')
 AWS_SES_REGION_ENDPOINT = env('AWS_SES_REGION_ENDPOINT', default='email.us-east-1.amazonaws.com')
 AWS_SES_CONFIGURATION_SET = env('AWS_SES_CONFIGURATION_SET', default=None)
+
+# REST FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=3),
+    'SIGNING_KEY': env('SIMPLE_JWT_SIGNING_KEY', default=None) or SECRET_KEY,
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True
+}
